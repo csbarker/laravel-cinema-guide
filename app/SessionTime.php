@@ -8,19 +8,13 @@ class SessionTime extends Model
 {
     public $timestamps = false;
 
-    /**
-     * Get the movie associated with the session time.
-     */
     public function movie()
     {
-        return $this->hasOne('App\Movie');
+        return $this->belongsTo('App\Movie');
     }
 
-    /**
-     * Get the cinema associated with the session time.
-     */
     public function cinema()
     {
-        return $this->hasOne('App\Cinema');
+        return $this->belongsTo('App\Cinema');
     }
 }
