@@ -54,7 +54,7 @@ class WelcomeController extends Controller
                 'All sessions'
             ],
             [
-                '/sessions{cinema_id}',
+                '/sessions/{cinema_id}',
                 "/sessions/{$random_cinema->id}",
                 "All sessions for cinema id {$random_cinema->id}",
             ],
