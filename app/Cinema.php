@@ -10,6 +10,6 @@ class Cinema extends Model
 
     public function sessions()
     {
-        return $this->hasMany('App\SessionTime');
+        return $this->hasMany('App\SessionTime')->orderby('datetime');
     }
 }

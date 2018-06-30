@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Http\Request;
+
 use App\Cinema as Cinema;
 use App\Http\Resources\Cinema as CinemaResource;
 use App\Http\Resources\CinemaCollection as CinemaCollection;
@@ -32,21 +34,31 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 /**
  * Cinema Routes
- *      /cinemas                           List of cinemas
- *      /cinemas/name                      Information about a cinema
+ *      /cinemas            List of cinemas
+ *      /cinemas/name       Information about a cinema
  */
-Route::get('/cinemas/{name?}', function ($name = null) {
+
+Route::any('/cinemas/{name?}', function (Request $request, $name = null) {
     if ($name === null) {
-        return new CinemaCollection(Cinema::all());
+        return new CinemaCollection(Cinema::paginate());
     }
 
-    $cinema = Cinema::where('name', $name)->first();
+    $cinema = Cinema::where('name', $name);
+
+    $date = $request->json('date');
+    if ($date !== null && preg_match("/^[0-9-]+$/", $date)) {
+        $cinema = $cinema->whereHas('sessions', function($query) use ($date) {
+            $query->where('datetime','LIKE', $date . '%');
+        });
+    };
+
+    $cinema = $cinema->first();
 
     if ($cinema !== null) {
         return new CinemaResource($cinema);
     }
     
-    return Response::json(['error'=> 'Cinema not found'], 404);
+    return Response::json(['error'=> 'No results found'], 404);
 })->name('cinemas');
 
 /**
@@ -54,18 +66,28 @@ Route::get('/cinemas/{name?}', function ($name = null) {
  *      /movies         List of movies
  *      /movies/name    Individual movie
  */
-Route::get('/movies/{name?}', function($name = null) {
+
+Route::any('/movies/{name?}', function(Request $request, $name = null) {
     if ($name === null) {
-        return new MovieCollection(Movie::all());
+        return new MovieCollection(Movie::paginate());
     }
 
-    $movie = Movie::where('name', $name)->first();
+    $movie = Movie::where('name', $name);
+
+    $date = $request->json('date');
+    if ($date !== null && preg_match("/^[0-9-]+$/", $date)) {
+        $movie = $movie->whereHas('sessions', function($query) use ($date) {
+            $query->where('datetime','LIKE', $date . '%');
+        });
+    };
+
+    $movie = $movie->first();
 
     if ($movie !== null) {
         return new MovieResource($movie);
     }
     
-    return Response::json(['error'=> 'Movie not found'], 404);
+    return Response::json(['error'=> 'No results found'], 404);
 })->name('movies');
 
 /**
@@ -74,8 +96,8 @@ Route::get('/movies/{name?}', function($name = null) {
  *      /sessions/{cinema_id}                 List of session times at a particular cinema
  *      /sessions/{cinema_id}/{movie_id}      List of session times of a particular movie at a particular cinema
  */
-Route::get('/sessions/{cinema_id?}/{movie_id?}', function ($cinema_id = 'any', $movie_id = 'all') {
-    $all = false;
+
+Route::any('/sessions/{cinema_id?}/{movie_id?}', function (Request $request, $cinema_id = 'any', $movie_id = 'all') {
     $where = [];
 
     if (ctype_digit($cinema_id)) {
@@ -86,15 +108,25 @@ Route::get('/sessions/{cinema_id?}/{movie_id?}', function ($cinema_id = 'any', $
         $where[] = ['movie_id', $movie_id];
     }
 
-    if ($cinema_id === 'any' && $movie_id === 'all') {
-        $all = true;
-        $sessions = SessionTime::all();
-    } else {
-        $sessions = SessionTime::where($where)->get();
-    }
+    $date = $request->json('date');
+    if ($date !== null && preg_match("/^[0-9-]+$/", $date)) {
+        $where[] = ['datetime','LIKE', $date . '%'];
+    };
 
-    if ($all === false && ($where === [] || $sessions->count() == 0)) {
-        return Response::json(['error'=> 'No sessions found'], 404);
+    if ($cinema_id === 'any' && $movie_id === 'all' && $where === []) {
+        // show all sessions
+        $sessions = SessionTime::orderby('datetime')->paginate();
+
+        if ($sessions->count() == 0) {
+            return Response::json(['error'=> 'No sessions found'], 404);
+        }
+    } else {
+        // show specific sessions
+        $sessions = SessionTime::where($where)->orderby('datetime')->paginate();
+
+        if ($sessions->count() == 0) {
+            return Response::json(['error'=> 'No sessions found'], 404);
+        }
     }
 
     return new SessionTimeCollection($sessions);
