@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\SessionTime as SessionTime;
+use App\Http\Resources\SessionTimeCollection as SessionTimeCollection;
+
 class SessionController extends Controller
 {
     public function index(Request $request, $cinema_id = 'any', $movie_id = 'all') {
