@@ -30,14 +30,14 @@ class SessionController extends Controller
             $sessions = SessionTime::orderby('datetime')->paginate();
 
             if ($sessions->count() == 0) {
-                return Response::json(['error'=> 'No sessions found'], 404);
+                return response()->json(['error'=> 'No sessions found'], 404);
             }
         } else {
             // show specific sessions
             $sessions = SessionTime::where($where)->orderby('datetime')->paginate();
     
             if ($sessions->count() == 0) {
-                return Response::json(['error'=> 'No sessions found'], 404);
+                return response()->json(['error'=> 'No sessions found'], 404);
             }
         }
 

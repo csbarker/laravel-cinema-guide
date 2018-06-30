@@ -13,12 +13,7 @@
 
 use Illuminate\Http\Request;
 
-use App\SessionTime as SessionTime;
-use App\Http\Resources\SessionTimeCollection as SessionTimeCollection;
-
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'WelcomeController@index');
 
 Auth::routes();
 

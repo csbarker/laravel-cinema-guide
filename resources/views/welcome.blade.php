@@ -62,6 +62,30 @@
             .m-b-md {
                 margin-bottom: 30px;
             }
+            .content {
+                margin-left:40px;
+            }
+            .content h1, 
+            .content p, 
+            .content li,
+            .content table {
+                text-align:left;
+                font-family: Arial,"Helvetica Neue",Helvetica,sans-serif;
+            }
+            .content strong {
+                font-weight:600;
+            }
+            .content pre {
+                text-align:left;
+                border:1px solid #CCC;
+                padding:10px;
+                border-radius:10px;
+                width:50%;
+            }
+            .content PRE,
+            .content TABLE {
+                margin-left:20px;
+            }
         </style>
     </head>
     <body>
@@ -79,6 +103,50 @@
 
             <div class="content">
                 <h1>Welcome to the Cinema API</h1>
+
+                <p>There are currently:</p>
+                <ul>
+                    <li><strong>{{ $cinema_count }}</strong> Cinemas</li>
+                    <li><strong>{{ $movie_count }}</strong> Movies</li>
+                    <li><strong>{{ $sessiontime_count }}</strong> SessionTimes</li>
+                </ul>
+                <p>If you need more data please run <code>php artisan db:seed</code> from the command line.</p>
+                <hr>
+
+                <p>The following endpoints are available for usage:</p>
+                <table>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Live Endpoint</th>
+                        <th>Description</th>
+                    </tr>
+                    @foreach ($endpoints as $ep)
+                       <tr>
+                           <td>{{ $ep[0] }}</td>
+                           <td><a href="{{ $ep[1] }}">{{ $ep[1] }}</a></td>
+                           <td>{{ $ep[2] }}</td>
+                       </tr>
+                    @endforeach
+                </table>
+                <hr>
+
+                <p>To filter results by date please supply the date in json format.</p>
+                <p>Accepted date formats: <code>YYYY</code>, <code>YYYY-MM</code> and <code>YYYY-MM-DD</code></p>
+                <p>Example:</p>
+                <pre>
+POST /movies/aut%20deserunt%20tenetur
+content-type: application/json
+cache-control: no-cache
+user-agent: PostmanRuntime/7.1.5
+accept: */*
+host: 127.0.0.1:8000
+accept-encoding: gzip, deflate
+content-length: 28
+{
+"date" : "2018-09-01"
+}
+</pre>
+                
             </div>
         </div>
     </body>

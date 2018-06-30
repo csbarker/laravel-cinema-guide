@@ -30,6 +30,6 @@ class CinemaController extends Controller
             return new CinemaResource($cinema);
         }
         
-        return Response::json(['error'=> 'No results found'], 404);
+        return response()->json(['error'=> 'No results found'], 404);
     }
 }

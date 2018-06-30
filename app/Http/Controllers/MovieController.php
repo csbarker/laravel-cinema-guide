@@ -30,6 +30,6 @@ class MovieController extends Controller
             return new MovieResource($movie);
         }
         
-        return Response::json(['error'=> 'No results found'], 404);
+        return response()->json(['error'=> 'No results found'], 404);
     }
 }
